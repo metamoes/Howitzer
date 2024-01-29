@@ -1,8 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.net.*;
 
 
@@ -15,10 +13,8 @@ public class Howitzer extends JFrame {
 
 	JButton testButton;
 	JButton testButton2;
-	JButton testButton3;
-	JTextField testBox;
 
-	JPanel scanNetworkTab;
+	ScanNetwork scanNetworkTab;
 	JPanel selectScopeTab;
 	JPanel viewCVETab;
 	JPanel crossReferenceTab;
@@ -29,20 +25,17 @@ public class Howitzer extends JFrame {
 
 	InetAddress ip;
 
-	JTable ipTable;
-	DefaultTableModel ipTableModel = new DefaultTableModel();
-
 	public Howitzer() {
-		super("Howitzer");
-		menuBar = new JMenuBar();
+		super("Howitzer"); /* Sets the title of the window */
+		menuBar = new JMenuBar(); /* All of this menubar stuff is just placeholder, none of it has a use yet */
 		setJMenuBar(menuBar);
 
 		jMenuFile = new JMenu("File");
 		jMenuFile.setMnemonic('F');
 		menuBar.add(jMenuFile);
 
-		jMenuExit = new JMenuItem("Exit");
-		jMenuExit.setMnemonic('x');
+		jMenuExit = new JMenuItem("Exit"); /* This is actually rigged to close the application :3 */
+		jMenuExit.setMnemonic('x'); /* If used in the future, please ensure anything important is saved first */
 		jMenuFile.add(jMenuExit);
 	
 		jMenuEdit = new JMenu("Edit");
@@ -57,7 +50,7 @@ public class Howitzer extends JFrame {
 		add(mainPanel);
 		mainPanel.setLayout(new GridLayout(1,1));
 
-		JPanel tabPanel = new JPanel();
+		JPanel tabPanel = new JPanel(); /* TODO, temporary tabs */
 		testButton = new JButton("COOL BUTTON");
 		tabPanel.add(testButton);
 
@@ -65,21 +58,7 @@ public class Howitzer extends JFrame {
 		testButton2 = new JButton("COOLER BUTTON");
 		tabPanel2.add(testButton2);
 
-		scanNetworkTab = new JPanel();
-//		scanNetworkTab.setLayout(new GridLayout(2,2));
-		testButton3 = new JButton("SCAN");
-		scanNetworkTab.add(testButton3);
-		testBox = new JTextField(20);
-		//scanNetworkTab.add(testBox);
-
-		ipTable = new JTable(ipTableModel);
-		ipTable.setDragEnabled(false);
-		ipTableModel.addColumn("IP Address");
-		ipTableModel.addColumn("Hostname");
-		scanNetworkTab.add(new JScrollPane(ipTable));
-
-
-
+		scanNetworkTab = new ScanNetwork(); /* Seperate tabs should be seperate classes on different files which extend JPanel */
 		selectScopeTab = new JPanel();
 		viewCVETab = new JPanel();
 		crossReferenceTab = new JPanel();
@@ -101,17 +80,12 @@ public class Howitzer extends JFrame {
 		tabPane.addTab("Generate Report", genReportTab);
 		mainPanel.add(tabPane);
 
-
-
-	
-
-		
 		ActionHandler ah = new ActionHandler();
 
 		jMenuExit.addActionListener(ah);
 		testButton.addActionListener(ah);
 		testButton2.addActionListener(ah);
-		testButton3.addActionListener(ah);
+		scanNetworkTab.scanButton.addActionListener(ah);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(1280,720);
@@ -126,7 +100,7 @@ public class Howitzer extends JFrame {
 				System.out.printf("COOL BUTTON PRESSED\n");
 			} else if (e.getSource() == testButton2) {
 				System.out.printf("COOLER BUTTON PRESSED\n");
-			} else if (e.getSource() == testButton3) {
+			} else if (e.getSource() == scanNetworkTab.scanButton) {
 				try {
 				/*
 				ip = InetAddress.getByName(testBox.getText());
@@ -143,7 +117,11 @@ public class Howitzer extends JFrame {
 		}
 	}
 
-	public class ScanThread extends Thread {
+	/*
+	 * Thread for scanNetworkTab, I don't know how to move this over to its respective file,
+	 * It's late and I am sleepy.... TODO
+	 */
+	public class ScanThread extends Thread { 
 		//private byte f;
 		/*public ScanThread(byte f) {
 			this.f = f;
@@ -151,16 +129,14 @@ public class Howitzer extends JFrame {
 		public void run() {
 			try {
 			for (byte i = 0; i<254; i++) {
-			ip = InetAddress.getByAddress(new byte[] { (byte)192, (byte)168, (byte)1, i });
+			InetAddress ip = InetAddress.getByAddress(new byte[] { (byte)192, (byte)168, (byte)1, i });
 			boolean reached = ip.isReachable(100);
 			System.out.println("REACHED: " + reached + " " + ip);
 			if (reached) {
-				ipTableModel.insertRow(0, new Object[] { ip.getHostAddress(), ip.getHostName() });
+				scanNetworkTab.ipTableModel.insertRow(0, new Object[] { ip.getHostAddress(), ip.getHostName() });
 			} } } catch (Exception ex) {}
 		}
 	}
-
-//	public void scanIPRange(String 
 
 	public static void main(String[] args) {
 		new Howitzer();

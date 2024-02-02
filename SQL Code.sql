@@ -4,16 +4,37 @@ CREATE DATABASE Howitzer;
 USE Howitzer;
 
 CREATE TABLE Portlist (
-   `Protocol Information` VARCHAR(255) NOT NULL,
-    `Port` INT NOT NULL PRIMARY KEY,
+   `Protocol Information` VARCHAR(3) NOT NULL, -- TODO port then description then information
+    `Port` INT PRIMARY KEY,
    `Description` TEXT
 );
 
 CREATE TABLE CVE (
-   `CVE Number` VARCHAR(255) NOT NULL PRIMARY KEY,
-   `Status` VARCHAR(255) NOT NULL,
+   `CVE Number` VARCHAR(16) PRIMARY KEY,
+   `Status` VARCHAR(10) NOT NULL,
    `Description` TEXT,
    `References` TEXT
+);
+
+CREATE TABLE Exploits
+(
+    `ID`              CHAR(14) PRIMARY KEY,
+    `File`            VARCHAR(255),
+    `Description`     TEXT,
+    `date_published`  DATE,
+    `Author`          TEXT,
+    `Type`            VARCHAR(50),
+    `Platform`        VARCHAR(50),
+    `Port`            Int,
+    `Date_Added`      DATE,
+    `Date_Updated`    DATE,
+    `Verified`        INT,
+    `Code_References` TEXT,
+    `tags`           TEXT,
+    `aliases`         TEXT,
+    `screenshot_url`  TEXT,
+    `application_url` TEXT,
+    `Source_url`      TEXT
 );
 
 LOAD DATA INFILE 'tcp.csv'
@@ -28,10 +49,18 @@ FIELDS TERMINATED BY ','  -- Assuming commas are the delimiters
 LINES TERMINATED BY '\n'
 IGNORE 10 LINES;  -- Skip the first 10 rows
 
+LOAD DATA INFILE 'files_exploits.csv'
+INTO TABLE Exploits
+FIELDS TERMINATED BY ','  -- Assuming commas are the delimiters
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES;
+
 SELECT * FROM CVE; -- describe all from CVE table
 SELECT * FROM Portlist; -- describe all from Portlist table
+SELECT * FROM Exploits; -- describe all from Exploits table
 
-
+-- TODO create port to penetration test information table to store all attempts and successes
+-- TODO proccess the exploit db table into a usable format with relational table structure with port and cve number remove OSCVDB records
  -- Creating Searchable Views for CVE and Portlist tables
 
 CREATE VIEW searchable_cve_Description AS
@@ -72,3 +101,6 @@ select * from searchable_cve_DescAndRef; -- select from searchable_cve view
 select * from searchable_Portlist_DescAndPort; -- select from searchable_cve view
 select * from searchable_Portlist_Description; -- select from searchable_cve view
 select * from searchable_Portlist_Port; -- select from searchable_cve view
+
+select * from portlist;
+select * from cve;

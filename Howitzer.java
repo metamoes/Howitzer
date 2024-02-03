@@ -12,13 +12,13 @@ public class Howitzer extends JFrame {
 	JMenu jMenuPref;
 
 	ScanNetwork scanNetworkTab;
-	JPanel selectScopeTab;
-	JPanel viewCVETab;
-	JPanel crossReferenceTab;
-	JPanel identifyVulnTab;
-	JPanel penetrateTab;
-	JPanel seeTrafficTab;
-	JPanel genReportTab;
+	SelectScope selectScopeTab;
+	ViewCVE viewCVETab;
+	CrossReference crossReferenceTab;
+	VulnTab identifyVulnTab;
+	Penetrate penetrateTab;
+	SeeTraffic seeTrafficTab;
+	Reporting genReportTab;
 
 	InetAddress ip;
 
@@ -106,10 +106,6 @@ public class Howitzer extends JFrame {
 	 * It's late and I am sleepy.... TODO
 	 */
 	public class ScanThread extends Thread { 
-		//private byte f;
-		/*public ScanThread(byte f) {
-			this.f = f;
-		}*/
 		public void run() {
 			try {
 			byte[] startBytes = scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText());
@@ -148,10 +144,8 @@ public class Howitzer extends JFrame {
 		scanNetworkTab.stopButton.setEnabled(t);
 		scanning = t; 
 	}
-	
+
 	public static void main(String[] args) {
 		new Howitzer();
 	}
 }
-
-

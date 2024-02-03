@@ -46,6 +46,7 @@ public class ScanNetwork extends JPanel {
 		ipTable.setDragEnabled(false);
 		ipTableModel.addColumn("IP Address");
 		ipTableModel.addColumn("Hostname");
+        ipTable.setEnabled(false);
 		bottomPanel.add(new JScrollPane(ipTable));
     }
 

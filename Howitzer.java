@@ -11,9 +11,6 @@ public class Howitzer extends JFrame {
 	JMenu jMenuEdit;
 	JMenu jMenuPref;
 
-	JButton testButton;
-	JButton testButton2;
-
 	ScanNetwork scanNetworkTab;
 	JPanel selectScopeTab;
 	JPanel viewCVETab;
@@ -24,6 +21,8 @@ public class Howitzer extends JFrame {
 	JPanel genReportTab;
 
 	InetAddress ip;
+
+	boolean scanning = false;
 
 	public Howitzer() {
 		super("Howitzer"); /* Sets the title of the window */
@@ -50,26 +49,16 @@ public class Howitzer extends JFrame {
 		add(mainPanel);
 		mainPanel.setLayout(new GridLayout(1,1));
 
-		JPanel tabPanel = new JPanel(); /* TODO, temporary tabs */
-		testButton = new JButton("COOL BUTTON");
-		tabPanel.add(testButton);
-
-		JPanel tabPanel2 = new JPanel();
-		testButton2 = new JButton("COOLER BUTTON");
-		tabPanel2.add(testButton2);
-
 		scanNetworkTab = new ScanNetwork(); /* Seperate tabs should be seperate classes on different files which extend JPanel */
-		selectScopeTab = new JPanel();
-		viewCVETab = new JPanel();
-		crossReferenceTab = new JPanel();
-		identifyVulnTab = new JPanel();
-		penetrateTab = new JPanel();
-		seeTrafficTab = new JPanel();
-		genReportTab = new JPanel();
+		selectScopeTab = new SelectScope();
+		viewCVETab = new ViewCVE();
+		crossReferenceTab = new CrossReference();
+		identifyVulnTab = new VulnTab();
+		penetrateTab = new Penetrate();
+		seeTrafficTab = new SeeTraffic();
+		genReportTab = new Reporting();
 
 		JTabbedPane tabPane = new JTabbedPane();
-		tabPane.addTab("TEST TAB", tabPanel);
-		tabPane.addTab("TEST TAB2", tabPanel2);
 		tabPane.addTab("Scan Network", scanNetworkTab);
 		tabPane.addTab("Select Scope", selectScopeTab);
 		tabPane.addTab("View CVEs", viewCVETab);
@@ -83,9 +72,10 @@ public class Howitzer extends JFrame {
 		ActionHandler ah = new ActionHandler();
 
 		jMenuExit.addActionListener(ah);
-		testButton.addActionListener(ah);
-		testButton2.addActionListener(ah);
 		scanNetworkTab.scanButton.addActionListener(ah);
+		scanNetworkTab.stopButton.addActionListener(ah);
+
+		
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(1280,720);
@@ -96,23 +86,17 @@ public class Howitzer extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == jMenuExit) {
 				System.exit(0); //THIS CLOSES WITH NO SAVING OR ANYTHING DONT KEEP THIS TODO
-			} else if (e.getSource() == testButton) {
-				System.out.printf("COOL BUTTON PRESSED\n");
-			} else if (e.getSource() == testButton2) {
-				System.out.printf("COOLER BUTTON PRESSED\n");
 			} else if (e.getSource() == scanNetworkTab.scanButton) {
 				try {
-				/*
-				ip = InetAddress.getByName(testBox.getText());
-				boolean reached = ip.isReachable(1000);
-				System.out.println("REACHED: " + reached + " " + ip);
-				if (reached) {
-					System.out.println(ip.getHostName());
-				} */
+				scanNetworkTab.ipTableModel.setRowCount(0);
+				scanState(true);
+				scanNetworkTab.subnetCalc(scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText()), scanNetworkTab.fieldToAddr(scanNetworkTab.ipSubnet.getText()));
 				ScanThread t = new ScanThread();
 				t.start();
 				} catch (Exception ex) {}
 					
+			} else if (e.getSource() == scanNetworkTab.stopButton) {
+				scanState(false);
 			}
 		}
 	}
@@ -128,16 +112,43 @@ public class Howitzer extends JFrame {
 		}*/
 		public void run() {
 			try {
-			for (byte i = 0; i<254; i++) {
-			InetAddress ip = InetAddress.getByAddress(new byte[] { (byte)192, (byte)168, (byte)1, i });
-			boolean reached = ip.isReachable(100);
-			System.out.println("REACHED: " + reached + " " + ip);
-			if (reached) {
-				scanNetworkTab.ipTableModel.insertRow(0, new Object[] { ip.getHostAddress(), ip.getHostName() });
-			} } } catch (Exception ex) {}
+			byte[] startBytes = scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText());
+			byte[] endBytes = scanNetworkTab.subnetCalc(startBytes, scanNetworkTab.fieldToAddr(scanNetworkTab.ipSubnet.getText()));
+
+			InetAddress startAddress = InetAddress.getByAddress(startBytes);
+			InetAddress endAddress = InetAddress.getByAddress(endBytes);
+			while (!startAddress.equals(endAddress)) {
+				if (!scanning) return;
+				boolean reached = startAddress.isReachable(100);
+				System.out.println("REACHED: " + reached + " " + startAddress);
+				if (reached) {
+					scanNetworkTab.ipTableModel.insertRow(0, new Object[] { startAddress.getHostAddress(), startAddress.getHostName() });
+				} 
+				incrementIP(startBytes);
+				startAddress = InetAddress.getByAddress(startBytes);
+			}
+			scanState(false);
+			} catch (Exception ex) {}
+		}
+
+		public void incrementIP(byte[] ipAddr) {
+			for (int i = ipAddr.length - 1; i >= 0; i--) {
+				if ((ipAddr[i] & 0xFF) == 255) {
+					ipAddr[i] = 0;
+				} else {
+					ipAddr[i]++;
+					break;
+				}
+			}
 		}
 	}
 
+	public void scanState(boolean t) {
+		scanNetworkTab.scanButton.setEnabled(!t);
+		scanNetworkTab.stopButton.setEnabled(t);
+		scanning = t; 
+	}
+	
 	public static void main(String[] args) {
 		new Howitzer();
 	}

@@ -1,23 +1,101 @@
 import javax.swing.*;
+import java.awt.*;
+import java.net.*;
+
 import javax.swing.table.*;
 
 public class ScanNetwork extends JPanel {
 
     public JButton scanButton; /* These should all be public so that Howitzer.java can access them */
-    public JTable ipTable; /* Obviously if it should be private then make it private */
+    public JButton stopButton;
+    private JLabel ipFieldLabel; /* Obviously if it should be private then make it private */
+    public JTextField ipField;
+    private JLabel ipSubnetLabel;
+    public JTextField ipSubnet;
+
+    public JTable ipTable; 
 	public DefaultTableModel ipTableModel = new DefaultTableModel();
 
     public ScanNetwork() {
         JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
         add(mainPanel);
+
+        JPanel topPanel = new JPanel();
+        JPanel bottomPanel = new JPanel();
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        topPanel.setLayout(new FlowLayout());
+
         scanButton = new JButton("SCAN");
-        mainPanel.add(scanButton);
-        
+        stopButton = new JButton("Stop");
+        stopButton.setEnabled(false);
+        ipFieldLabel = new JLabel("IP: ");
+        ipField = new JTextField("192.168.1.1", 15);
+        ipSubnetLabel = new JLabel("Subnet: ");
+        ipSubnet = new JTextField("255.255.255.0", 15);
+        topPanel.add(scanButton);
+        topPanel.add(stopButton);
+        topPanel.add(ipFieldLabel);
+        topPanel.add(ipField);
+        topPanel.add(ipSubnetLabel);
+        topPanel.add(ipSubnet);
+
         ipTable = new JTable(ipTableModel);
 		ipTable.setDragEnabled(false);
 		ipTableModel.addColumn("IP Address");
 		ipTableModel.addColumn("Hostname");
-		mainPanel.add(new JScrollPane(ipTable));
+		bottomPanel.add(new JScrollPane(ipTable));
     }
-    
+
+    public byte[] fieldToAddr(String in) {
+        try {
+            InetAddress addr = InetAddress.getByName(in);
+            return addr.getAddress();
+        } catch (Exception e) {
+            //TODO, the address was incorrectly input, send a dialog to user
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public byte[] subnetCalc(byte[] startAddr, byte[] subnetMask) {
+        byte[] useAbleStart = fieldToAddr(ipField.getText());
+        byte[] useAbleEnd = new byte[4];
+
+        try {
+        byte[] networkBytes = new byte[4];
+        for (int i=0;i<4;i++) {
+            networkBytes[i] = (byte)(startAddr[i] & subnetMask[i]);
+        }
+        
+        int hosts = 1;
+        for (int i=0;i<4;i++) {
+            hosts *= 256 - (subnetMask[i] & 0xFF);
+        }
+        
+        int endValue = 0;
+        byte[] endAddr = new byte[4];
+        for (int i=0;i<4;i++) {
+            endValue += (networkBytes[i] & 0xFF) << (8*(3-i));
+            int unsignedEndValue = endValue + hosts -1;
+            endAddr[i] = (byte) ((unsignedEndValue >> (8*(3-i))) & 0xFF);
+        }
+
+        useAbleEnd = new byte[]{endAddr[0], endAddr[1], endAddr[2], (byte)(endAddr[3]-1)};
+        InetAddress useAbleStartAddress = InetAddress.getByAddress(useAbleStart);
+        InetAddress useAbleEndAddress = InetAddress.getByAddress(useAbleEnd);
+
+        System.out.println("Start Address " + InetAddress.getByAddress(startAddr).getHostAddress());
+        System.out.println("Subnet Mask " + InetAddress.getByAddress(subnetMask).getHostAddress());
+        System.out.println("Network Address " + InetAddress.getByAddress(networkBytes).getHostAddress());
+        System.out.println("Number of Hosts " + hosts);
+        System.out.println("Number of Usabel Hosts " + (hosts-2));
+        System.out.println("Range " + useAbleStartAddress.getHostAddress() + " - " + useAbleEndAddress.getHostAddress());
+        return useAbleEnd; //for now this returns the end address
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

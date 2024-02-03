@@ -12,15 +12,16 @@ CREATE TABLE Portlist (
 );
 
 CREATE TABLE CVE (
-   `CVE Number`     VARCHAR(16) PRIMARY KEY,
+   `CVE Number`     VARCHAR(16) NOT NULL,
    `Status`         VARCHAR(10) NOT NULL,
    `Description`    TEXT,
-   `References`     TEXT
+   `References`     TEXT,
+                    CONSTRAINT CVE_pk PRIMARY KEY (`CVE Number`)
 );
 
 CREATE TABLE Exploits
 (
-    `ID`              CHAR(14) PRIMARY KEY,
+    `ID`              CHAR(14),
     `File`            VARCHAR(255),
     `Description`     TEXT,
     `date_published`  DATE,
@@ -36,22 +37,45 @@ CREATE TABLE Exploits
     `aliases`         TEXT,
     `screenshot_url`  TEXT,
     `application_url` TEXT,
-    `Source_url`      TEXT
+    `Source_url`      TEXT,
+                      CONSTRAINT Exploits_pk PRIMARY KEY (`ID`)
 );
 
-LOAD DATA INFILE 'service-names-port-numbers.csv'
+CREATE TABLE User (
+  UserID INT PRIMARY KEY AUTO_INCREMENT,  -- Unique identifier for each user
+  UserName VARCHAR(255) NOT NULL UNIQUE,  -- Username must be unique
+  FirstName VARCHAR(255),                 -- Optional first name
+  LastName VARCHAR(255),                  -- Optional last name
+  Email VARCHAR(255) UNIQUE               -- Email must be unique
+                  # Add other relevant user information fields here
+);
+
+CREATE TABLE UserActivityLog (
+    LogID INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each log entry
+    UserID INT,                            -- References the user who performed the action
+    Timestamp DATETIME NOT NULL,           -- Date and time of the action
+    Action VARCHAR(100) NOT NULL,          -- Description of the action performed
+    Target VARCHAR(255),                   -- The target or object of the action
+    Result VARCHAR(100),                   -- Result or status of the action
+    Details TEXT,                          -- Additional details or context for the action
+
+    CONSTRAINT UserID_fk FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+
+LOAD DATA INFILE '/Howitzer-main/Database/service-names-port-numbers.csv'
 INTO TABLE Portlist
 FIELDS TERMINATED BY ','  -- Assuming commas are the delimiters
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
-LOAD DATA INFILE 'allitems.csv'
+LOAD DATA INFILE '/Howitzer-main/Database/allitems.csv'
 INTO TABLE CVE
 FIELDS TERMINATED BY ','  -- Assuming commas are the delimiters
 LINES TERMINATED BY '\n'
 IGNORE 10 LINES;  -- Skip the first 10 rows
 
-LOAD DATA INFILE 'files_exploits.csv'
+LOAD DATA INFILE '/Howitzer-main/Database/files_exploits.csv'
 INTO TABLE Exploits
 FIELDS TERMINATED BY ','  -- Assuming commas are the delimiters
 LINES TERMINATED BY '\n'

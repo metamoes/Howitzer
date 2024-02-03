@@ -106,6 +106,11 @@ public class Howitzer extends JFrame {
 	 * It's late and I am sleepy.... TODO
 	 */
 	public class ScanThread extends Thread { 
+		private final DefaultTableModel ipTableModel;
+    
+                public ScanThread(DefaultTableModel ipTableModel) {
+                    this.ipTableModel = ipTableModel;
+                }
 		public void run() {
 			try {
 			byte[] startBytes = scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText());

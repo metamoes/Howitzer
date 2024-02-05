@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.net.*;
+import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 
 public class Howitzer extends JFrame {
@@ -12,17 +14,19 @@ public class Howitzer extends JFrame {
 	JMenu jMenuPref;
 
 	ScanNetwork scanNetworkTab;
-	SelectScope selectScopeTab;
-	ViewCVE viewCVETab;
-	CrossReference crossReferenceTab;
-	VulnTab identifyVulnTab;
-	Penetrate penetrateTab;
-	SeeTraffic seeTrafficTab;
-	Reporting genReportTab;
+	JPanel selectScopeTab;
+	JPanel viewCVETab;
+	JPanel crossReferenceTab;
+	JPanel identifyVulnTab;
+	JPanel penetrateTab;
+	JPanel seeTrafficTab;
+	JPanel genReportTab;
 
 	InetAddress ip;
 
 	boolean scanning = false;
+        
+        ArrayList<String> reports = new ArrayList<>();
 
 	public Howitzer() {
 		super("Howitzer"); /* Sets the title of the window */
@@ -56,7 +60,7 @@ public class Howitzer extends JFrame {
 		identifyVulnTab = new VulnTab();
 		penetrateTab = new Penetrate();
 		seeTrafficTab = new SeeTraffic();
-		genReportTab = new Reporting();
+		genReportTab = new Reporting(reports);
 
 		JTabbedPane tabPane = new JTabbedPane();
 		tabPane.addTab("Scan Network", scanNetworkTab);
@@ -91,7 +95,7 @@ public class Howitzer extends JFrame {
 				scanNetworkTab.ipTableModel.setRowCount(0);
 				scanState(true);
 				scanNetworkTab.subnetCalc(scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText()), scanNetworkTab.fieldToAddr(scanNetworkTab.ipSubnet.getText()));
-				ScanThread t = new ScanThread();
+				ScanThread t = new ScanThread(scanNetworkTab.ipTableModel, reports);
 				t.start();
 				} catch (Exception ex) {}
 					
@@ -107,10 +111,16 @@ public class Howitzer extends JFrame {
 	 */
 	public class ScanThread extends Thread { 
 		private final DefaultTableModel ipTableModel;
+                private final ArrayList<String> reports;
     
-                public ScanThread(DefaultTableModel ipTableModel) {
+                public ScanThread(DefaultTableModel ipTableModel, ArrayList<String> reports) {
                     this.ipTableModel = ipTableModel;
+                    this.reports = reports;
                 }
+
+        private ScanThread() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
 		public void run() {
 			try {
 			byte[] startBytes = scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText());
@@ -124,6 +134,7 @@ public class Howitzer extends JFrame {
 				System.out.println("REACHED: " + reached + " " + startAddress);
 				if (reached) {
 					scanNetworkTab.ipTableModel.insertRow(0, new Object[] { startAddress.getHostAddress(), startAddress.getHostName() });
+                                        reports.add(startAddress.getHostAddress());
 				} 
 				incrementIP(startBytes);
 				startAddress = InetAddress.getByAddress(startBytes);
@@ -149,8 +160,10 @@ public class Howitzer extends JFrame {
 		scanNetworkTab.stopButton.setEnabled(t);
 		scanning = t; 
 	}
-
+	
 	public static void main(String[] args) {
 		new Howitzer();
 	}
 }
+
+

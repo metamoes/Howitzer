@@ -1,12 +1,21 @@
 @echo off
 
+set "download_link=https://mirrors.gigenet.com/mariadb//mariadb-11.4.0/winx64-packages/mariadb-11.4.0-winx64.msi"
+set "filename=mariadb-11.4.0-winx64.msi"
+
 :: Check for MariaDB installation
 reg query "HKLM\SOFTWARE\MariaDB" /v InstalledVersion >nul 2>&1
 if %errorlevel% equ 0 goto check_csv_files
 
-:: Unzip MariaDB installer
+:: Download MariaDB installer
 cd installers
-7z x mariadb-11.4.0-winx64.zip
+curl -L "%download_link%" -o "\%filename%"
+
+if exist "%home_dir%\%filename%" (
+  echo Download complete! File saved to "\%filename%".
+) else (
+  echo Error: Download failed! Please check the download link and try again.
+)
 
 :: Install MariaDB
 start /wait msiexec.exe /i mariadb-11.4.0-winx64.msi
@@ -23,7 +32,7 @@ java Howitzer
 goto end
 
 :error
-msg * "Something went wrong!"
+msg * "Something went wrong! Please check installation settings"
 exit /b 1
 
 :check_csv_files

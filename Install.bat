@@ -1,10 +1,8 @@
 @echo off
 
 cd /d "%~dp0"
-set "Java_download_link=https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.msi"
-set "Java_filename=jdk-21_windows-x64_bin.msi"
 
-:: Determine if run as administrator
+:Determine if run as administrator:
 if defined SessionName (
   echo You are not running as administrator.
   msg * "You are not running as administrator. Please check installation settings"
@@ -12,6 +10,40 @@ if defined SessionName (
 ) else (
   echo You are running as administrator.
 )
+
+
+:Metasploit_Install_Check:
+
+set "Meta_download_link=https://windows.metasploit.com/metasploitframework-latest.msi"
+set "Meta_filename=metasploitframework-latest.msi"
+
+:Check for Metasploit installation: 
+IF EXIST "C:\metasploit-framework\bin" echo Metasploit is installed && goto Java_Install_Check
+
+:Download Metasploit installer: 
+echo Metasploit is not installed
+cd installers
+curl -L "%Meta_download_link%" -o "./%Meta_filename%"
+
+if exist "./%Meta_filename%" (
+  echo Download complete! File saved to "\%Meta_filename%".
+) else (
+  echo Error: Download failed! Please check the download link and try again.
+)
+
+:Install Metasploit: 
+start /wait msiexec.exe /i %Meta_filename%
+
+
+
+
+
+cd /d "%~dp0"
+
+:Java_Install_Check:
+
+set "Java_download_link=https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.msi"
+set "Java_filename=jdk-21_windows-x64_bin.msi"
 
 
 :Check if Java is installed:
@@ -41,7 +73,7 @@ echo Java is installed.
 set "Maria_download_link=https://mirrors.gigenet.com/mariadb//mariadb-11.4.0/winx64-packages/mariadb-11.4.0-winx64.msi"
 set "Maria_filename=mariadb-11.4.0-winx64.msi"
 
-
+cd /d "%~dp0"
 
 :Check for MariaDB installation: 
 IF EXIST "C:\Program Files\MariaDB 11.4" echo Maria is installed && goto Launch_Howitzer
@@ -61,6 +93,7 @@ start /wait msiexec.exe /i &Maria_filename&
 cd ..
 
 :Launch_Howitzer:
+cd /d "%~dp0"
 echo Compiling and launching Howitzer. Thank you for using our software
 echo Loading: [           ]
 javac CrossReference.java

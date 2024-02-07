@@ -17,7 +17,7 @@ if defined SessionName (
 :Check if Java is installed:
 java -version 2>NUL
 
-:If Java is not installed, print a message and exit the script
+:If Java is not installed, install it
 if ERRORLEVEL 1 (
 
 :Download Java installer: 

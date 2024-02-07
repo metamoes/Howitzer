@@ -12,7 +12,6 @@ if defined SessionName (
 ) else (
   echo You are running as administrator.
 )
-pause
 
 
 :Check if Java is installed:
@@ -20,7 +19,6 @@ java -version 2>NUL
 
 :If Java is not installed, print a message and exit the script
 if ERRORLEVEL 1 (
-
 
 :Download Java installer: 
 cd installers

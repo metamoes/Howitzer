@@ -22,6 +22,7 @@ IF EXIST "C:\metasploit-framework\bin" echo Metasploit is installed && goto Java
 
 :Download Metasploit installer: 
 echo Metasploit is not installed
+msg * "Ensure that your antivirus is disabled for this installation else the install may fail and the software will not work properly"
 cd installers
 curl -L "%Meta_download_link%" -o "./%Meta_filename%"
 

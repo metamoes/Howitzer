@@ -12,6 +12,7 @@ public class ScanNetwork extends JPanel {
     public JTextField ipField;
     private JLabel ipSubnetLabel;
     public JTextField ipSubnet;
+    public JButton sendButton;
 
     public JTable ipTable; 
 	public DefaultTableModel ipTableModel = new DefaultTableModel();
@@ -22,9 +23,11 @@ public class ScanNetwork extends JPanel {
         add(mainPanel);
 
         JPanel topPanel = new JPanel();
+        JPanel centerPanel = new JPanel();
         JPanel bottomPanel = new JPanel();
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
         topPanel.setLayout(new FlowLayout());
 
@@ -42,12 +45,22 @@ public class ScanNetwork extends JPanel {
         topPanel.add(ipSubnetLabel);
         topPanel.add(ipSubnet);
 
-        ipTable = new JTable(ipTableModel);
+        ipTable = new JTable(ipTableModel) {
+            public Class getColumnClass(int column) {
+                return getValueAt(0, column).getClass();
+            }
+        };
+
 		ipTable.setDragEnabled(false);
 		ipTableModel.addColumn("IP Address");
 		ipTableModel.addColumn("Hostname");
+        ipTableModel.addColumn("Add to Scope");
         ipTable.setEnabled(false);
-		bottomPanel.add(new JScrollPane(ipTable));
+		centerPanel.add(new JScrollPane(ipTable));
+
+        sendButton = new JButton("Send to Scope");
+        bottomPanel.add(sendButton);
+
     }
 
     public byte[] fieldToAddr(String in) {
@@ -97,6 +110,14 @@ public class ScanNetwork extends JPanel {
         return useAbleEnd; //for now this returns the end address
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public void getCurrentTableAddresses() {
+        for (int i=0; i<ipTableModel.getRowCount(); i++) {
+            if ((boolean)ipTable.getValueAt(i, 2)) {
+                System.out.println(ipTable.getValueAt(i,0));
+            }
         }
     }
 }

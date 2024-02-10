@@ -78,8 +78,7 @@ public class Howitzer extends JFrame {
 		jMenuExit.addActionListener(ah);
 		scanNetworkTab.scanButton.addActionListener(ah);
 		scanNetworkTab.stopButton.addActionListener(ah);
-
-		
+		scanNetworkTab.sendButton.addActionListener(ah);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(1280,720);
@@ -101,6 +100,8 @@ public class Howitzer extends JFrame {
 					
 			} else if (e.getSource() == scanNetworkTab.stopButton) {
 				scanState(false);
+			} else if (e.getSource() == scanNetworkTab.sendButton) {
+				scanNetworkTab.getCurrentTableAddresses();
 			}
 		}
 	}
@@ -133,7 +134,7 @@ public class Howitzer extends JFrame {
 				boolean reached = startAddress.isReachable(100);
 				System.out.println("REACHED: " + reached + " " + startAddress);
 				if (reached) {
-					scanNetworkTab.ipTableModel.insertRow(0, new Object[] { startAddress.getHostAddress(), startAddress.getHostName() });
+					scanNetworkTab.ipTableModel.insertRow(0, new Object[] { startAddress.getHostAddress(), startAddress.getHostName(), false });
                                         reports.add(startAddress.getHostAddress());
 				} 
 				incrementIP(startBytes);
@@ -158,6 +159,7 @@ public class Howitzer extends JFrame {
 	public void scanState(boolean t) {
 		scanNetworkTab.scanButton.setEnabled(!t);
 		scanNetworkTab.stopButton.setEnabled(t);
+		scanNetworkTab.ipTable.setEnabled(!t);
 		scanning = t; 
 	}
 	

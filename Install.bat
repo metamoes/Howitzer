@@ -90,7 +90,7 @@ if exist "/%Maria_filename%" (
 )
 
 :Install MariaDB: 
-start /wait msiexec.exe /i &Maria_filename&
+start /wait msiexec.exe /i %Maria_filename%
 cd ..
 
 :Launch_Howitzer:

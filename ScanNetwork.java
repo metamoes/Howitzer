@@ -46,7 +46,7 @@ public class ScanNetwork extends JPanel {
         topPanel.add(ipSubnet);
 
         ipTable = new JTable(ipTableModel) {
-            public Class getColumnClass(int column) {
+            public Class<?> getColumnClass(int column) {
                 return getValueAt(0, column).getClass();
             }
         };
@@ -68,7 +68,7 @@ public class ScanNetwork extends JPanel {
             InetAddress addr = InetAddress.getByName(in);
             return addr.getAddress();
         } catch (Exception e) {
-            //TODO, the address was incorrectly input, send a dialog to user
+            
             e.printStackTrace();
             return null;
         }
@@ -113,11 +113,15 @@ public class ScanNetwork extends JPanel {
         }
     }
 
-    public void getCurrentTableAddresses() {
+    public String[] getCurrentTableAddresses() {
+        String[] returnArray = new String[ipTableModel.getRowCount()];
+        int j=0;
         for (int i=0; i<ipTableModel.getRowCount(); i++) {
             if ((boolean)ipTable.getValueAt(i, 2)) {
-                System.out.println(ipTable.getValueAt(i,0));
+                returnArray[j] = ipTable.getValueAt(i, 0).toString();
+                j++;
             }
         }
+        return returnArray;
     }
 }

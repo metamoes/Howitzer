@@ -13,14 +13,14 @@ public class Howitzer extends JFrame {
 	JMenu jMenuEdit;
 	JMenu jMenuPref;
 
-	ScanNetwork scanNetworkTab;
-	JPanel selectScopeTab;
-	JPanel viewCVETab;
-	JPanel crossReferenceTab;
-	JPanel identifyVulnTab;
-	JPanel penetrateTab;
-	JPanel seeTrafficTab;
-	JPanel genReportTab;
+	public ScanNetwork scanNetworkTab;
+	SelectScope selectScopeTab;
+	ViewCVE viewCVETab;
+	CrossReference crossReferenceTab;
+	VulnTab identifyVulnTab;
+	Penetrate penetrateTab;
+	SeeTraffic seeTrafficTab;
+	Reporting genReportTab;
 
 	InetAddress ip;
 
@@ -91,6 +91,10 @@ public class Howitzer extends JFrame {
 				System.exit(0); //THIS CLOSES WITH NO SAVING OR ANYTHING DONT KEEP THIS TODO
 			} else if (e.getSource() == scanNetworkTab.scanButton) {
 				try {
+				if (scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText()) == null) {
+					JOptionPane.showMessageDialog(scanNetworkTab, "IP is not correct.", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				scanNetworkTab.ipTableModel.setRowCount(0);
 				scanState(true);
 				scanNetworkTab.subnetCalc(scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText()), scanNetworkTab.fieldToAddr(scanNetworkTab.ipSubnet.getText()));
@@ -101,7 +105,10 @@ public class Howitzer extends JFrame {
 			} else if (e.getSource() == scanNetworkTab.stopButton) {
 				scanState(false);
 			} else if (e.getSource() == scanNetworkTab.sendButton) {
-				scanNetworkTab.getCurrentTableAddresses();
+				String[] a = scanNetworkTab.getCurrentTableAddresses();
+				for (int i=0; i<a.length; i++) {
+					selectScopeTab.scopeTableModel.insertRow(0, new Object[] { a[i] });
+				}
 			}
 		}
 	}
@@ -119,9 +126,10 @@ public class Howitzer extends JFrame {
                     this.reports = reports;
                 }
 
-        private ScanThread() {
+        /*private ScanThread() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
+        }*/ //NOTE: idk what this is but it was giving a warning so i have commented it out.
+		
 		public void run() {
 			try {
 			byte[] startBytes = scanNetworkTab.fieldToAddr(scanNetworkTab.ipField.getText());

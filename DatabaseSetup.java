@@ -3,7 +3,7 @@ import java.sql.*;
 public class DatabaseSetup {
     public static void main(String[] args) {
         String url = "jdbc:mariadb://localhost:3306/";
-        String dbName = "Howitzer";
+        String dbName = "HowitzerDB";
         String driver = "org.mariadb.jdbc.Driver";
         String userName = "your_username";
         String password = "your_password";
@@ -14,9 +14,9 @@ public class DatabaseSetup {
             Statement stmt = conn.createStatement();
 
             // Creating Initial Setup and importing data
-            stmt.executeUpdate("DROP DATABASE IF EXISTS Howitzer");
-            stmt.executeUpdate("CREATE DATABASE Howitzer");
-            stmt.executeUpdate("USE Howitzer");
+            stmt.executeUpdate("DROP DATABASE IF EXISTS HowitzerDB");
+            stmt.executeUpdate("CREATE DATABASE HowitzerDB");
+            stmt.executeUpdate("USE HowitzerDB");
 
             stmt.executeUpdate("CREATE TABLE Portlist (" +
                     "`Port` INT," +

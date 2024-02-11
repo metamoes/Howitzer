@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class DatabaseSetup {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/";
+        String url = "jdbc:mariadb://localhost:3306/";
         String dbName = "Howitzer";
         String driver = "com.mysql.cj.jdbc.Driver";
         String userName = "your_username";

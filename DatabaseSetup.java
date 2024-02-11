@@ -4,7 +4,7 @@ public class DatabaseSetup {
     public static void main(String[] args) {
         String url = "jdbc:mariadb://localhost:3306/";
         String dbName = "Howitzer";
-        String driver = "com.mysql.cj.jdbc.Driver";
+        String driver = "org.mariadb.jdbc.Driver";
         String userName = "your_username";
         String password = "your_password";
 

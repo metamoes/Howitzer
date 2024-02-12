@@ -95,6 +95,28 @@ cd ..
 
 :Launch_Howitzer:
 cd /d "%~dp0"
+
+echo Now setting up database
+setlocal enabledelayedexpansion
+
+rem Get the current batch file path (dynamically)
+set basepath=%~dp0
+
+rem Build the path to mariadb.jar
+set "MARIADB_JAR=%%~dp0\!installers\mariadb-java-client-3.3.2"
+
+rem Escape any spaces in the paths
+set %%~dp0=!%%~dp0!
+set "MARIADB_JAR=!MARIADB_JAR!"
+
+rem Call the Java program with arguments
+javac -classpath ./installers/mariadb-java-client-3.3.2.jar DatabaseSetup.java
+jar cf DatabaseSetup.jar DatabaseSetup.class mariadb-java-client-3.3.2.jar
+java -jar DatabaseSetup.jar "!%%~dp0!" "!MARIADB_JAR!"
+
+endlocal
+
+
 echo Compiling and launching Howitzer. Thank you for using our software
 echo Loading: [           ]
 javac CrossReference.java

@@ -5,10 +5,13 @@ public class DatabaseSetup {
         String url = "jdbc:mariadb://localhost:3306/";
         String dbName = "HowitzerDB";
         String driver = "org.mariadb.jdbc.Driver";
-        String userName = "your_username";
-        String password = "your_password";
+        String userName = "root";
+        String password = "";
 
         try {
+			
+			String batFilePath = args[0];
+            System.out.println("batFilePath: " + batFilePath);
             Class.forName(driver);
             Connection conn = DriverManager.getConnection(url, userName, password);
             Statement stmt = conn.createStatement();

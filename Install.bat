@@ -111,7 +111,7 @@ set "MARIADB_JAR=!MARIADB_JAR!"
 
 rem Call the Java program with arguments
 javac -classpath ./installers/mariadb-java-client-3.3.2.jar DatabaseSetup.java
-jar cf DatabaseSetup.jar DatabaseSetup.class mariadb-java-client-3.3.2.jar
+jar cvmf ./installers/databasesetup/manifest.txt DatabaseSetup.jar DatabaseSetup.class ./installers/mariadb-java-client-3.3.2.jar
 java -jar DatabaseSetup.jar "!%%~dp0!" "!MARIADB_JAR!"
 
 endlocal

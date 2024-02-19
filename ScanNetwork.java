@@ -60,6 +60,7 @@ public class ScanNetwork extends JPanel {
 
         sendButton = new JButton("Send to Scope");
         bottomPanel.add(sendButton);
+        sendButton.setEnabled(false);
 
     }
 
@@ -68,7 +69,6 @@ public class ScanNetwork extends JPanel {
             InetAddress addr = InetAddress.getByName(in);
             return addr.getAddress();
         } catch (Exception e) {
-            
             e.printStackTrace();
             return null;
         }

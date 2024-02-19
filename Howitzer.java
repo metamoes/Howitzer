@@ -107,7 +107,8 @@ public class Howitzer extends JFrame {
 			} else if (e.getSource() == scanNetworkTab.sendButton) {
 				String[] a = scanNetworkTab.getCurrentTableAddresses();
 				for (int i=0; i<a.length; i++) {
-					selectScopeTab.scopeTableModel.insertRow(0, new Object[] { a[i] });
+					//System.out.println()
+					selectScopeTab.scopeTableModel.insertRow(0, new Object[] { a[i] , "X"});
 				}
 			}
 		}
@@ -169,6 +170,9 @@ public class Howitzer extends JFrame {
 		scanNetworkTab.stopButton.setEnabled(t);
 		scanNetworkTab.ipTable.setEnabled(!t);
 		scanning = t; 
+		if (scanNetworkTab.ipTable.getRowCount() > 0 && !t) {
+			scanNetworkTab.sendButton.setEnabled(!t);
+		}
 	}
 	
 	public static void main(String[] args) {

@@ -8,6 +8,13 @@ public class ViewCVE extends JPanel {
 
     private Connection conn;
     
+    public ViewCVE() {
+        JPanel mainPanel = new JPanel();
+        add(mainPanel);
+        JLabel label = new JLabel("ViewCVE");
+        mainPanel.add(label);
+    }
+
     public ViewCVE(Connection conn) {
         JPanel mainPanel = new JPanel();
         add(mainPanel);

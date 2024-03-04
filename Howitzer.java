@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.net.*;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import java.sql.*;
 
 
 public class Howitzer extends JFrame {
@@ -26,63 +27,79 @@ public class Howitzer extends JFrame {
 
 	boolean scanning = false;
         
+        public static Connection conn;
+        
         ArrayList<String> reports = new ArrayList<>();
+        ArrayList<String> selectedScopes = new ArrayList<>();
 
 	public Howitzer() {
-		super("Howitzer"); /* Sets the title of the window */
-		menuBar = new JMenuBar(); /* All of this menubar stuff is just placeholder, none of it has a use yet */
-		setJMenuBar(menuBar);
+            super("Howitzer"); /* Sets the title of the window */
+            menuBar = new JMenuBar(); /* All of this menubar stuff is just placeholder, none of it has a use yet */
+            setJMenuBar(menuBar);
 
-		jMenuFile = new JMenu("File");
-		jMenuFile.setMnemonic('F');
-		menuBar.add(jMenuFile);
+            jMenuFile = new JMenu("File");
+            jMenuFile.setMnemonic('F');
+            menuBar.add(jMenuFile);
 
-		jMenuExit = new JMenuItem("Exit"); /* This is actually rigged to close the application :3 */
-		jMenuExit.setMnemonic('x'); /* If used in the future, please ensure anything important is saved first */
-		jMenuFile.add(jMenuExit);
+            jMenuExit = new JMenuItem("Exit"); /* This is actually rigged to close the application :3 */
+            jMenuExit.setMnemonic('x'); /* If used in the future, please ensure anything important is saved first */
+            jMenuFile.add(jMenuExit);
 	
-		jMenuEdit = new JMenu("Edit");
-		jMenuEdit.setMnemonic('E');
-		menuBar.add(jMenuEdit);
+            jMenuEdit = new JMenu("Edit");
+            jMenuEdit.setMnemonic('E');
+            menuBar.add(jMenuEdit);
 
-		jMenuPref = new JMenu("Preferences");
-		jMenuPref.setMnemonic('P');
-		menuBar.add(jMenuPref);
+            jMenuPref = new JMenu("Preferences");
+            jMenuPref.setMnemonic('P');
+            menuBar.add(jMenuPref);
 
-		JPanel mainPanel = new JPanel();
-		add(mainPanel);
-		mainPanel.setLayout(new GridLayout(1,1));
+            JPanel mainPanel = new JPanel();
+            add(mainPanel);
+            mainPanel.setLayout(new GridLayout(1,1));
 
-		scanNetworkTab = new ScanNetwork(); /* Seperate tabs should be seperate classes on different files which extend JPanel */
-		selectScopeTab = new SelectScope();
-		viewCVETab = new ViewCVE();
-		crossReferenceTab = new CrossReference();
-		identifyVulnTab = new VulnTab();
-		penetrateTab = new Penetrate();
-		seeTrafficTab = new SeeTraffic();
-		genReportTab = new Reporting(reports);
+            try {
+                String url = "jdbc:mariadb://localhost:3306/";
+                String dbName = "HowitzerDB";
+                String driver = "org.mariadb.jdbc.Driver";
+                String userName = "root";
+                String password = "";
+                
+                Class.forName(driver);
+                conn = DriverManager.getConnection(url + dbName, userName, password);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            scanNetworkTab = new ScanNetwork(); /* Seperate tabs should be seperate classes on different files which extend JPanel */
+            selectScopeTab = new SelectScope();
+            viewCVETab = new ViewCVE(conn);
+            crossReferenceTab = new CrossReference();
+            identifyVulnTab = new VulnTab();
+            penetrateTab = new Penetrate();
+            seeTrafficTab = new SeeTraffic();
+            genReportTab = new Reporting(reports, selectedScopes);
 
-		JTabbedPane tabPane = new JTabbedPane();
-		tabPane.addTab("Scan Network", scanNetworkTab);
-		tabPane.addTab("Select Scope", selectScopeTab);
-		tabPane.addTab("View CVEs", viewCVETab);
-		tabPane.addTab("Cross-Reference", crossReferenceTab);
-		tabPane.addTab("Identify Vulns", identifyVulnTab);
-		tabPane.addTab("Penetrate", penetrateTab);
-		tabPane.addTab("Network Traffic", seeTrafficTab);
-		tabPane.addTab("Generate Report", genReportTab);
-		mainPanel.add(tabPane);
+            JTabbedPane tabPane = new JTabbedPane();
+            tabPane.addTab("Scan Network", scanNetworkTab);
+            tabPane.addTab("Select Scope", selectScopeTab);
+            tabPane.addTab("View CVEs", viewCVETab);
+            tabPane.addTab("Cross-Reference", crossReferenceTab);
+            tabPane.addTab("Identify Vulns", identifyVulnTab);
+            tabPane.addTab("Penetrate", penetrateTab);
+            tabPane.addTab("Network Traffic", seeTrafficTab);
+            tabPane.addTab("Generate Report", genReportTab);
+            mainPanel.add(tabPane);
 
-		ActionHandler ah = new ActionHandler();
+            ActionHandler ah = new ActionHandler();
 
-		jMenuExit.addActionListener(ah);
-		scanNetworkTab.scanButton.addActionListener(ah);
-		scanNetworkTab.stopButton.addActionListener(ah);
-		scanNetworkTab.sendButton.addActionListener(ah);
+            jMenuExit.addActionListener(ah);
+            scanNetworkTab.scanButton.addActionListener(ah);
+            scanNetworkTab.stopButton.addActionListener(ah);
+            scanNetworkTab.sendButton.addActionListener(ah);
 
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setSize(1280,720);
-		setVisible(true);
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+            setSize(1280,720);
+            setVisible(true);
 	}
 
 	public class ActionHandler implements ActionListener {
@@ -106,11 +123,19 @@ public class Howitzer extends JFrame {
 				scanState(false);
 			} else if (e.getSource() == scanNetworkTab.sendButton) {
 				String[] a = scanNetworkTab.getCurrentTableAddresses();
-				for (int i=0; i<a.length; i++) {
-					//System.out.println()
-					selectScopeTab.scopeTableModel.insertRow(0, new Object[] { a[i] , "X"});
+				for (String ip : a) {
+                                    selectedScopes.add(ip);
+                                    selectScopeTab.scopeTableModel.insertRow(0, new Object[] { ip , "X"});
 				}
-			}
+                            
+			} else if (e.getSource() == genReportTab.printReportButton) {
+                        // Generate the report when the Print Report button is clicked
+                        try {
+                            genReportTab.generateTXT();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+            }
 		}
 	}
 

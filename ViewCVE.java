@@ -22,11 +22,6 @@ public class ViewCVE extends JPanel {
         mainPanel.add(label);
         this.conn = conn;
         setupGUI();
-        setupDatabase();
-    }
-    
-    private void setupDatabase() {
-        
     }
     
     private void setupGUI() {
@@ -62,12 +57,27 @@ public class ViewCVE extends JPanel {
         try {
             Statement view = conn.createStatement();
             ResultSet rs = view.executeQuery("SELECT * FROM CVE");
+            
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("CVE Number");
+            model.addColumn("Status");
+            model.addColumn("Description");
+            model.addColumn("References");
+            
             while (rs.next()) {
-                System.out.println("CVE Number: " + rs.getString("CVE Number"));
-                System.out.println("Status: " + rs.getString("Status"));
-                System.out.println("Description: " + rs.getString("Description"));
-                System.out.println("References: " + rs.getString("References"));
+                String[] row = {
+                    rs.getString("CVE Number"),
+                    rs.getString("Status"),
+                    rs.getString("Description"),
+                    rs.getString("References")
+                };
+                model.addRow(row);
             }
+            
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+            
+            JOptionPane.showMessageDialog(this, scrollPane, "CVE Data", JOptionPane.PLAIN_MESSAGE);
             
             view.close();
             rs.close();
@@ -80,12 +90,27 @@ public class ViewCVE extends JPanel {
         try {
             Statement view = conn.createStatement();
             ResultSet rs = view.executeQuery("SELECT * FROM Portlist");
+            
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Portlist Number");
+            model.addColumn("Status");
+            model.addColumn("Description");
+            model.addColumn("References");
+            
             while (rs.next()) {
-                System.out.println("Portlist Number: " + rs.getString("Portlist Number"));
-                System.out.println("Status: " + rs.getString("Status"));
-                System.out.println("Description: " + rs.getString("Description"));
-                System.out.println("References: " + rs.getString("References"));
+                String[] row = {
+                    rs.getString("Portlist Number"),
+                    rs.getString("Status"),
+                    rs.getString("Description"),
+                    rs.getString("References")
+                };
+                model.addRow(row);
             }
+            
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+            
+            JOptionPane.showMessageDialog(this, scrollPane, "Portlist Data", JOptionPane.PLAIN_MESSAGE);
             
             view.close();
             rs.close();
@@ -98,12 +123,27 @@ public class ViewCVE extends JPanel {
         try {
             Statement view = conn.createStatement();
             ResultSet rs = view.executeQuery("SELECT * FROM Exploits");
+            
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Exploit Number");
+            model.addColumn("Status");
+            model.addColumn("Description");
+            model.addColumn("References");
+            
             while (rs.next()) {
-                System.out.println("Exploit Number: " + rs.getString("Exploit Number"));
-                System.out.println("Status: " + rs.getString("Status"));
-                System.out.println("Description: " + rs.getString("Description"));
-                System.out.println("References: " + rs.getString("References"));
+                String[] row = {
+                    rs.getString("Exploit Number"),
+                    rs.getString("Status"),
+                    rs.getString("Description"),
+                    rs.getString("References")
+                };
+                model.addRow(row);
             }
+            
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+            
+            JOptionPane.showMessageDialog(this, scrollPane, "Exploit Data", JOptionPane.PLAIN_MESSAGE);
             
             view.close();
             rs.close();

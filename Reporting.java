@@ -3,18 +3,26 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
+import java.io.*;
 
+/**
+ *
+ * @author irona
+ */
 public class Reporting extends JPanel {
     private ArrayList<String> reports;
+    private ArrayList<String> selectedScopes;
+    
     public JButton printReportButton;
-
-    public Reporting(ArrayList<String> reports) {
+    
+    public void addSelectedScope(String scope) {
+        selectedScopes.add(scope);
+    }
+    
+    public Reporting(ArrayList<String> reports, ArrayList<String> selectedScopes) {
         this.reports = reports;
-
+        this.selectedScopes = selectedScopes;
+        
         JPanel mainPanel = new JPanel();
         add(mainPanel);
         JLabel label = new JLabel("Reporting");
@@ -25,9 +33,9 @@ public class Reporting extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    printReports();
+                    generateTXT();
                 } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -35,27 +43,29 @@ public class Reporting extends JPanel {
         mainPanel.add(printReportButton);
     }
 
-    public void generatePDF(String filePath) throws Exception {
+    public void generateTXT() throws Exception {
         try {
-            PdfDocument pdfReport = new PdfDocument(new PdfWriter("report.pdf"));
-            Document doc = new Document(pdfReport);
-            String ipScan = "Scanned IP Addresses: ";
-            Paragraph paragraphScans = new Paragraph(ipScan);
-            for(String ipAddress : reports) {
-                String scans = ipAddress;
-                paragraphScans.add(ipAddress);
+            String getCurrent = System.getProperty("user.dir") + "/src";
+            File file = new File(getCurrent, "report.txt");
+            FileWriter writer = new FileWriter(file);
+            writer.write("Scanned IP Addresses\n");
+            for (String ipAddress: reports) {
+                writer.write(ipAddress + "\n");
+            }
+            writer.write("\n");
+            writer.write("Selected Scopes\n");
+            
+            for (String scope : selectedScopes) {
+                if (scope != null) {
+                    writer.write(scope + "\n");
+                }
             }
             
-            doc.add(paragraphScans);
-            
-            doc.close();
-            JOptionPane.showMessageDialog(null, "Report. ");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Reporting Error: " + e.getMessage());
+            writer.close();
+            JOptionPane.showMessageDialog(this, "Report generated.");
+        } catch (IOException ex){
+            System.out.println("Error in generating text.");
+            ex.printStackTrace();
         }
-    }
-
-    public void printReports() throws Exception {
-        generatePDF("report.pdf");
     }
 }

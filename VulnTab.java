@@ -6,6 +6,7 @@ import java.net.*;
 public class VulnTab extends JPanel {
     JButton scan;
     JTextField ipAddr;
+    JTextField portF;
     public VulnTab() {
         JPanel mainPanel = new JPanel();
         add(mainPanel);
@@ -15,6 +16,8 @@ public class VulnTab extends JPanel {
         mainPanel.add(scan);
         ipAddr = new JTextField("192.168.1.64");
         mainPanel.add(ipAddr);
+        portF = new JTextField("443");
+        mainPanel.add(portF);
 
         ActionHandler ah = new ActionHandler();
         scan.addActionListener(ah);
@@ -25,8 +28,10 @@ public class VulnTab extends JPanel {
     public class ActionHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == scan) {
-                if (scanPort(ipAddr.getText(), 443, 200)) {
-                    System.out.println("FOUND HTTPS");
+                if (scanPort(ipAddr.getText(), Integer.parseInt(portF.getText()), 200)) {
+                    System.out.println("FOUND OPEN PORT");
+                } else {
+                    System.out.println("PORT NOT FOUND ( PROBABLY NOT OPEN )");
                 }
             }
         }

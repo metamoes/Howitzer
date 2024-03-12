@@ -36,13 +36,10 @@ public class DatabaseSetup {
                     "`ID` CHAR(14) PRIMARY KEY," +
                     "`File` VARCHAR(255)," +
                     "`Description` TEXT," +
-                    "`date_published` DATE," +
                     "`Author` TEXT," +
                     "`Type` VARCHAR(50)," +
                     "`Platform` VARCHAR(50)," +
                     "`Port` INT," +
-                    "`Date_Added` DATE," +
-                    "`Date_Updated` DATE," +
                     "`Verified` INT," +
                     "`Code_References` TEXT," +
                     "`tags` TEXT," +

@@ -9,9 +9,7 @@ public class DatabaseSetup {
         String password = "";
 
         try {
-			
-			String batFilePath = args[0];
-            System.out.println("batFilePath: " + batFilePath);
+
             Class.forName(driver);
             Connection conn = DriverManager.getConnection(url, userName, password);
             Statement stmt = conn.createStatement();

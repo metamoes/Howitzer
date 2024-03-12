@@ -96,52 +96,6 @@ cd ..
 :Launch_Howitzer:
 cd /d "%~dp0"
 
-echo Now setting up database
-setlocal enabledelayedexpansion
-
-rem Get the current batch file path (dynamically)
-set basepath=%~dp0
-
-rem Build the path to mariadb.jar
-set "MARIADB_JAR=%~dp0\!installers\mariadb-java-client-3.3.2"
-
-rem Escape any spaces in the paths
-set %~dp0=!%%~dp0!
-set "MARIADB_JAR=!MARIADB_JAR!"
-
-rem Call the Java program with arguments
-javac -classpath ./installers/mariadb-java-client-3.3.2.jar DatabaseSetup.java
-jar cvmf ./installers/databasesetup/manifest.txt DatabaseSetup.jar DatabaseSetup.class ./installers/mariadb-java-client-3.3.2.jar
-java -jar DatabaseSetup.jar "!MARIADB_JAR!" "!MARIADB_JAR!"
-
-endlocal
-
-setlocal enabledelayedexpansion
-
-rem Get the current batch file path (dynamically)
-set basepath=%~dp0
-
-rem Build the path to layout.jar
-set "LAYOUT_JAR=%~dp0\!installers\layout-8.0.3"
-
-rem Escape any spaces in the paths
-set %~dp0=!%%~dp0!
-set "LAYOUT_JAR=!LAYOUT_JAR!"
-
-rem Build the path to kernel.jar
-set "KERNEL_JAR=%~dp0\!installers\kernel-8.0.3"
-
-rem Escape any spaces in the paths
-set %~dp0=!%%~dp0!
-set "KERNEL_JAR=!KERNEL_JAR!"
-
-rem Call the Java program with arguments
-javac -classpath "./installers/kernel-8.0.3.jar;./installers/layout-8.0.3.jar" Reporting.java
-jar cvmf ./installers/Reporting/manifest.txt Reporting.jar Reporting.class
-java -jar Reporting.jar "!KERNEL_JAR!" "!KERNEL_JAR!"
-
-endlocal
-
 echo Compiling and launching Howitzer. Thank you for using our software
 echo Loading: [           ]
 javac CrossReference.java
@@ -166,8 +120,10 @@ javac ViewCVE.java
 echo Loading: [########## ]
 javac VulnTab.java
 echo Loading: [###########]
+javac Howitzer.java
 echo it worked somehow!!!
-java howitzer.java
+
+java Howitzer.java
 
 Echo Shutting Down
 

@@ -51,19 +51,19 @@ public class DatabaseSetup {
                     "`application_url` TEXT," +
                     "`Source_url` TEXT)");
 
-            stmt.executeUpdate("LOAD DATA INFILE 'service-names-port-numbers.csv' " +
+            stmt.executeUpdate("LOAD DATA INFILE './service-names-port-numbers.csv' " +
                     "INTO TABLE Portlist " +
                     "FIELDS TERMINATED BY ',' " +
                     "LINES TERMINATED BY '\n' " +
                     "IGNORE 1 LINES");
 
-            stmt.executeUpdate("LOAD DATA INFILE 'allitems.csv' " +
+            stmt.executeUpdate("LOAD DATA INFILE './allitems.csv' " +
                     "INTO TABLE CVE " +
                     "FIELDS TERMINATED BY ',' " +
                     "LINES TERMINATED BY '\n' " +
                     "IGNORE 10 LINES");
 
-            stmt.executeUpdate("LOAD DATA INFILE 'files_exploits.csv' " +
+            stmt.executeUpdate("LOAD DATA INFILE './files_exploits.csv' " +
                     "INTO TABLE Exploits " +
                     "FIELDS TERMINATED BY ',' " +
                     "LINES TERMINATED BY '\n' " +

@@ -11,6 +11,9 @@ import javax.swing.table.DefaultTableModel;
 public class ViewCVE extends JPanel {
 
     private Connection conn;
+    private JTextField searchInput;
+    private JButton searchButton;
+    private String searchColumn;
     
     public ViewCVE() {
         JPanel mainPanel = new JPanel();
@@ -33,10 +36,32 @@ public class ViewCVE extends JPanel {
         JButton viewPortlist = new JButton("View Portlist Data");
         JButton viewExploits = new JButton("View Exploits Data");
         
+        searchInput = new JTextField(32);
+        searchButton = new JButton("Search Database");
+        
+        searchButton.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               String searchText = searchInput.getText();
+               if (viewCVE.isSelected()) {
+                   searchCVE(searchText);
+               } else if (viewPortlist.isSelected()) {
+                   searchPortlist(searchText);
+               } else if (viewExploits.isSelected()) {
+                   searchExploits(searchText);
+               }
+           } 
+        });
     
         viewCVE.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 viewCVEData();
+            }
+        });
+        
+        viewCVE.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String searchText = searchInput.getText();
+                searchCVE(searchText);
             }
         });
         
@@ -46,15 +71,31 @@ public class ViewCVE extends JPanel {
             }
         });
         
+        viewPortlist.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String searchText = searchInput.getText();
+                searchPortlist(searchText);
+            }
+        });
+        
         viewExploits.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 viewExploitsData();
             }
         });
         
+        viewExploits.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String searchText = searchInput.getText();
+                searchExploits(searchText);
+            }
+        });
+        
         add(viewCVE);
         add(viewPortlist);
         add(viewExploits);
+        add(searchButton);
+        add(searchInput);
     }
     
     private void viewCVEData() {
@@ -90,6 +131,11 @@ public class ViewCVE extends JPanel {
         }
     }
     
+    private void searchCVE(String searchText) {
+        searchColumn = "CVE Number";
+        searchDatabase(searchText, "CVE");
+    }
+    
     private void viewPortlistData() {
         try {
             Statement view = conn.createStatement();
@@ -121,6 +167,11 @@ public class ViewCVE extends JPanel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void searchPortlist(String searchText) {
+        searchColumn = "Port";
+        searchDatabase(searchText, "Portlist");
     }
     
     private void viewExploitsData() {
@@ -175,6 +226,45 @@ public class ViewCVE extends JPanel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void searchExploits(String searchText) {
+        searchColumn = "ID";
+        searchDatabase(searchText, "Exploits");
+    }
+    
+    private void searchDatabase(String searchText, String tableName) {
+        try {
+            Statement search = conn.createStatement();
+            String query = "SELECT * FROM " + tableName + " WHERE '" + searchColumn + "' LIKE '%" + searchText + "%'";
+            ResultSet rs = search.executeQuery(query);
+            
+            DefaultTableModel model = new DefaultTableModel();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            
+            for (int i = 1; i <= columnCount; i++) {
+                model.addColumn(metaData.getColumnName(i));
+            }
+            
+            while (rs.next()) {
+                Object[] row = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    row[i - 1] = rs.getObject(i);
+                }
+                model.addRow(row);
+            }
+            
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+            
+            JOptionPane.showMessageDialog(this, scrollPane, tableName + " Data", JOptionPane.PLAIN_MESSAGE);
+            
+            search.close();
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  
     }
     
     private void searchExploitDB(String description) {

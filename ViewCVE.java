@@ -1,4 +1,9 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -6,6 +11,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javax.swing.*;
 import java.sql.*;
+import java.util.concurrent.Flow;
+
 import javax.swing.table.DefaultTableModel;
 
 public class ViewCVE extends JPanel {
@@ -14,16 +21,17 @@ public class ViewCVE extends JPanel {
     private JTextField searchInput;
     private JButton searchButton;
     private String searchColumn;
+    private JPanel mainPanel;
     
     public ViewCVE() {
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         add(mainPanel);
         JLabel label = new JLabel("ViewCVE");
         mainPanel.add(label);
     }
 
     public ViewCVE(Connection conn) {
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         add(mainPanel);
         JLabel label = new JLabel("ViewCVE");
         mainPanel.add(label);
@@ -35,7 +43,19 @@ public class ViewCVE extends JPanel {
         JButton viewCVE = new JButton("View CVE Data");
         JButton viewPortlist = new JButton("View Portlist Data");
         JButton viewExploits = new JButton("View Exploits Data");
-        
+        JPanel centerPanel = new JPanel();
+        JPanel viewPanel = new JPanel();
+        JPanel searchPanel = new JPanel();
+        JPanel namePanel = new JPanel();
+        JPanel topPanel = new JPanel();
+        JPanel bottomPanel = new JPanel(); //put tables in here
+        JLabel nameLabel = new JLabel("Database Name");
+
+        topPanel.setLayout(new GridLayout(1,2));
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+        viewPanel.setLayout(new FlowLayout());
+        centerPanel.setLayout(new BorderLayout());
+
         searchInput = new JTextField(32);
         searchButton = new JButton("Search Database");
         
@@ -90,12 +110,21 @@ public class ViewCVE extends JPanel {
                 searchExploits(searchText);
             }
         });
-        
-        add(viewCVE);
-        add(viewPortlist);
-        add(viewExploits);
-        add(searchButton);
-        add(searchInput);
+
+        mainPanel.add(viewPanel);
+        viewPanel.add(viewCVE);
+        viewPanel.add(viewPortlist);
+        viewPanel.add(viewExploits);
+        mainPanel.add(centerPanel);
+        centerPanel.add(topPanel, BorderLayout.NORTH);
+        centerPanel.add(bottomPanel, BorderLayout.CENTER);
+        topPanel.add(namePanel);
+        topPanel.add(searchPanel);
+        searchPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        namePanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        searchPanel.add(searchButton);
+        searchPanel.add(searchInput);
+        namePanel.add(nameLabel);
     }
     
     private void viewCVEData() {

@@ -97,33 +97,14 @@ cd ..
 cd /d "%~dp0"
 
 echo Compiling and launching Howitzer. Thank you for using our software
-echo Loading: [           ]
-javac CrossReference.java
-echo Loading: [#          ]
-javac DatabaseSetup.java
-echo Loading: [##         ]
-javac Penetrate.java
-echo Loading: [###        ]
-javac DatabaseSetup.java
-echo Loading: [####       ]
-javac Reporting.java
-echo Loading: [#####      ]
-javac ScanNetwork.java
-echo Loading: [######     ]
-javac SearchableDataViews.java
-echo Loading: [#######    ]
-javac SeeTraffic.java
-echo Loading: [########   ]
-javac SelectScope.java
-echo Loading: [#########  ]
-javac ViewCVE.java
-echo Loading: [########## ]
-javac VulnTab.java
-echo Loading: [###########]
-javac Howitzer.java
+echo Loading: [#  ]
+Gradle -v
+echo Loading: [## ]
+Gradle Build
+echo Loading: [###]
+Gradle Run
 echo it worked somehow!!!
 
-java Howitzer.java
 
 Echo Shutting Down
 

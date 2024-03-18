@@ -1,23 +1,19 @@
 apply plugin: 'java'
 
 repositories {
-  // Use a central repository like Maven Central
   mavenCentral()
 }
 
 sourceSets {
   main {
     java {
-      srcDir 'C:/Users/ps121/OneDrive/Documents/GitHub/Howitzer/src/main/java'
+      srcDir 'C:\\Users\\ps121\\OneDrive\\Documents\\GitHub\\Howitzer\\src\\main\\java'
     }
   }
 }
 
-// Consider using a dependency management tool like Maven or Ivy
-// for larger projects (replace 'group' and 'version' with actual values)
 dependencies {
   implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.2'
-  // Add other dependencies here if needed
 }
 
 java {
@@ -25,12 +21,13 @@ java {
   targetCompatibility = JavaVersion.VERSION_17
 }
 
-task compile(type: JavaCompile) {
+tasks.register('compile', JavaCompile) {
   source = sourceSets.main.java
   classpath = sourceSets.main.runtimeClasspath
+  destinationDirectory.set(layout.buildDirectory.dir('classes/main'))
 }
 
-task run(type: JavaExec) {
+tasks.register('run', JavaExec) {
   dependsOn compile // Ensure compilation is done before running
   mainClass = 'Howitzer' // Specify the main class to run the program
 }

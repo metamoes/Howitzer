@@ -14,8 +14,6 @@ import javax.swing.table.DefaultTableModel;
 public class VulnTab extends JPanel {
     private ArrayList<String> currentIPs = new ArrayList<>();
     private JButton scan;
-    private JTextField ipAddr;
-    private JTextField portF;
     private ExecutorService executor;
 
     public VulnTab(ArrayList<String> c) {
@@ -29,10 +27,6 @@ public class VulnTab extends JPanel {
         topPanel.add(label);
         scan = new JButton("Scan");
         topPanel.add(scan);
-        ipAddr = new JTextField("192.168.1.64");
-        topPanel.add(ipAddr);
-        portF = new JTextField("443");
-        topPanel.add(portF);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
         
@@ -84,7 +78,7 @@ public class VulnTab extends JPanel {
         public void run() {
             //StringBuilder openPorts = new StringBuilder();
             System.out.println("STARTED port scanning for " + ipAddress);
-            for (int port = 1; port <= 2000; port++) {
+            for (int port = 1; port <= 65536; port++) {
                 try {
                 if (scanPort(ipAddress, port, 500)) {
                     System.out.println("PORT FOUND " + port + " FOR IP: " + ipAddress);

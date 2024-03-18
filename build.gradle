@@ -1,0 +1,18 @@
+repositories {
+  mavenCentral()}
+
+sourceCompatibility = 1.8 
+targetCompatibility = 1.8 
+task compile(type: JavaCompile) {
+  source = fileTree(dir: 'src/main/java', include: '**/*.java') // Replace 'src/main/java' with your source directory
+  classpath = sourceSets.main.runtimeClasspath  // Automatically includes dependencies
+  
+  // Add the MariaDB Connector/J dependency explicitly
+  classpath files(configurations.compile.files + configurations.runtime.files  + fileTree(dir: 'installers', include: 'mariadb-java-client-3.3.2.jar'))
+  mainClassName = 'Howitzer' // Specify the main class to run after compilation
+}
+
+task run(type: JavaExec) {
+  dependsOn compile
+  mainClass = 'Howitzer' 
+}

@@ -2,3 +2,6 @@
 *.jar
 *.xml
 *.iml
+*.lck
+*.xd
+/.idea/copilot

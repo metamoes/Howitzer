@@ -1,18 +1,36 @@
-repositories {
-  mavenCentral()}
+apply plugin: 'java'
 
-sourceCompatibility = 1.8 
-targetCompatibility = 1.8 
+repositories {
+  // Use a central repository like Maven Central
+  mavenCentral()
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir 'C:/Users/ps121/OneDrive/Documents/GitHub/Howitzer/src/main/java'
+    }
+  }
+}
+
+// Consider using a dependency management tool like Maven or Ivy
+// for larger projects (replace 'group' and 'version' with actual values)
+dependencies {
+  implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.2'
+  // Add other dependencies here if needed
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+}
+
 task compile(type: JavaCompile) {
-  source = fileTree(dir: 'src/main/java', include: '**/*.java') // Replace 'src/main/java' with your source directory
-  classpath = sourceSets.main.runtimeClasspath  // Automatically includes dependencies
-  
-  // Add the MariaDB Connector/J dependency explicitly
-  classpath files(configurations.compile.files + configurations.runtime.files  + fileTree(dir: 'installers', include: 'mariadb-java-client-3.3.2.jar'))
-  mainClassName = 'Howitzer' // Specify the main class to run after compilation
+  source = sourceSets.main.java
+  classpath = sourceSets.main.runtimeClasspath
 }
 
 task run(type: JavaExec) {
-  dependsOn compile
-  mainClass = 'Howitzer' 
+  dependsOn compile // Ensure compilation is done before running
+  mainClass = 'Howitzer' // Specify the main class to run the program
 }

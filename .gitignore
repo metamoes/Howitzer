@@ -5,3 +5,6 @@
 *.lck
 *.xd
 /.idea/copilot
+*.lock
+*.properties
+*.bin

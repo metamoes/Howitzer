@@ -1,18 +1,17 @@
 import java.awt.*;
-
-import javax.management.ObjectName;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.table.*;
-import java.awt.event.*;
 import java.util.EventObject;
 
 public class SelectScope extends JPanel {
-
-    public JTable scopeTable; 
-	public DaniTableModel scopeTableModel;
+    private ArrayList<String> currentIPs = new ArrayList<>();
+    private JTable scopeTable; 
+	private DaniTableModel scopeTableModel;
 	//JButton tButton = new JButton();
 
-    public SelectScope() {
+    public SelectScope(ArrayList<String> c) {
+        currentIPs = c;
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         add(mainPanel);
@@ -94,7 +93,7 @@ public class SelectScope extends JPanel {
         @Override
         public Object getCellEditorValue() { //TODO, deleting the bottom row of the table crashes the awt-eventqueue thread and breaks the whole system :3
             if (isPushed) {
-                scopeTableModel.removeRow(scopeTable.convertRowIndexToModel(editedRow));
+                removeFromScope(editedRow);
             }
             isPushed = false;
             return label;
@@ -110,5 +109,15 @@ public class SelectScope extends JPanel {
         protected void fireEditingStopped() {
             super.fireEditingStopped();
         }
+    }
+
+    public void addToScope(String ip) {
+        currentIPs.add(ip);
+        scopeTableModel.insertRow(0, new Object[] { ip , "X"});
+    }
+
+    public void removeFromScope(int row) {
+        currentIPs.remove(row);
+        scopeTableModel.removeRow(scopeTable.convertRowIndexToModel(row));
     }
 }

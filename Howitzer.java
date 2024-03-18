@@ -32,6 +32,8 @@ public class Howitzer extends JFrame {
         ArrayList<String> reports = new ArrayList<>();
         ArrayList<String> selectedScopes = new ArrayList<>();
 
+	public ArrayList<String> currentIPs = new ArrayList<>();
+
 	public Howitzer() {
             super("Howitzer"); /* Sets the title of the window */
             menuBar = new JMenuBar(); /* All of this menubar stuff is just placeholder, none of it has a use yet */
@@ -71,10 +73,10 @@ public class Howitzer extends JFrame {
             }
             
             scanNetworkTab = new ScanNetwork(); /* Seperate tabs should be seperate classes on different files which extend JPanel */
-            selectScopeTab = new SelectScope();
+            selectScopeTab = new SelectScope(currentIPs);
             viewCVETab = new ViewCVE(conn);
             crossReferenceTab = new CrossReference();
-            identifyVulnTab = new VulnTab();
+            identifyVulnTab = new VulnTab(currentIPs);
             penetrateTab = new Penetrate();
             seeTrafficTab = new SeeTraffic();
             genReportTab = new Reporting(reports, selectedScopes);
@@ -125,7 +127,7 @@ public class Howitzer extends JFrame {
 				String[] a = scanNetworkTab.getCurrentTableAddresses();
 				for (String ip : a) {
                                     selectedScopes.add(ip);
-                                    selectScopeTab.scopeTableModel.insertRow(0, new Object[] { ip , "X"});
+                                    selectScopeTab.addToScope(ip);
 				}
                             
 			} else if (e.getSource() == genReportTab.printReportButton) {

@@ -14,7 +14,7 @@ sourceSets {
 
 dependencies {
   implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.2'
-  implementation group: 'javax.jmdns', name: 'jmdns', version: '3.5.9'
+  implementation group: 'javax.jmdns', name: 'jmdns', version: '3.4.1'
 }
 
 java {

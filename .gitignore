@@ -8,3 +8,4 @@
 *.lock
 *.properties
 *.bin
+*.probe

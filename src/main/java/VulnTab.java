@@ -8,6 +8,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +21,8 @@ public class VulnTab extends JPanel {
     private ArrayList<String> openPorts = new ArrayList<>();
     private JButton scan;
     private ExecutorService executor;
+    private JButton stop;
+    private AtomicBoolean stopFlag = new AtomicBoolean(false);
 
     public VulnTab(ArrayList<String> c) {
         currentIPs = c;
@@ -34,25 +37,33 @@ public class VulnTab extends JPanel {
         topPanel.add(scan);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        
+
+        stop = new JButton("Stop");
+        topPanel.add(stop);
 
         ActionHandler ah = new ActionHandler();
         scan.addActionListener(ah);
+        stop.addActionListener(ah);
+        executor = Executors.newFixedThreadPool(10000);
         
-        executor = Executors.newFixedThreadPool(200);
-        
-    }   
+    }
 
     public class ActionHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == scan) {
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == scan) {
+                stopFlag.set(false);
                 scanPorts();
+            } else if (e.getSource() == stop) {
+                stopFlag.set(true);
             }
         }
     }
 
     public void scanPorts() {
         for (int i=0; i<currentIPs.size(); i++) {
+            if (stopFlag.get()) {
+                break;
+            }
             executor.execute(new PortScannerTask(currentIPs.get(i)));
         }
     }
@@ -85,6 +96,10 @@ public class VulnTab extends JPanel {
             System.out.println("STARTED port scanning for " + ipAddress);
             for (int port = 1; port <= 65536; port++) {
                 try {
+                    //determine if the thread should stop
+                    if (stopFlag.get()) {
+                    break;
+                }
                 if (scanPort(ipAddress, port, 500)) {
                     System.out.println("PORT FOUND " + port + " FOR IP: " + ipAddress);
                     openPorts.add(Integer.toString(port));

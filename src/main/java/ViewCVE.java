@@ -22,6 +22,9 @@ public class ViewCVE extends JPanel {
     private JButton searchButton;
     private String searchColumn;
     private JPanel mainPanel;
+    private JCheckBox checkCVE;
+    private JCheckBox checkPortlist;
+    private JCheckBox checkExploits;
     
     public ViewCVE() {
         mainPanel = new JPanel();
@@ -40,9 +43,10 @@ public class ViewCVE extends JPanel {
     }
     
     private void setupGUI() {
-        JButton viewCVE = new JButton("View CVE Data");
-        JButton viewPortlist = new JButton("View Portlist Data");
-        JButton viewExploits = new JButton("View Exploits Data");
+        JButton viewButton = new JButton("View Data");
+        checkCVE = new JCheckBox("CVE");
+        checkPortlist = new JCheckBox("Portlist");
+        checkExploits = new JCheckBox("Exploits");
         JPanel centerPanel = new JPanel();
         JPanel viewPanel = new JPanel();
         JPanel searchPanel = new JPanel();
@@ -56,65 +60,46 @@ public class ViewCVE extends JPanel {
         viewPanel.setLayout(new FlowLayout());
         centerPanel.setLayout(new BorderLayout());
 
+        viewButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (checkCVE.isSelected()) {
+                    viewCVEData();
+                }
+                if (checkPortlist.isSelected()) {
+                    viewPortlistData();
+                }
+                if (checkExploits.isSelected()) {
+                    viewExploitsData();
+                }
+            }
+        });
+        
         searchInput = new JTextField(32);
         searchButton = new JButton("Search Database");
         
         searchButton.addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {
                String searchText = searchInput.getText();
-               if (viewCVE.isSelected()) {
-                   searchCVE(searchText);
-               } else if (viewPortlist.isSelected()) {
-                   searchPortlist(searchText);
-               } else if (viewExploits.isSelected()) {
-                   searchExploits(searchText);
+               if (checkCVE.isSelected()) {
+                   searchColumn = "Description";
+                   searchDatabase(searchText, "CVE");
+               }
+               if (checkPortlist.isSelected()) {
+                   searchColumn = "Description";
+                   searchDatabase(searchText, "Portlist");
+               }
+               if (checkExploits.isSelected()) {
+                   searchColumn = "Description";
+                   searchDatabase(searchText, "Exploits");
                }
            } 
         });
-    
-        viewCVE.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                viewCVEData();
-            }
-        });
-        
-        viewCVE.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String searchText = searchInput.getText();
-                searchCVE(searchText);
-            }
-        });
-        
-        viewPortlist.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                viewPortlistData();
-            }
-        });
-        
-        viewPortlist.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String searchText = searchInput.getText();
-                searchPortlist(searchText);
-            }
-        });
-        
-        viewExploits.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                viewExploitsData();
-            }
-        });
-        
-        viewExploits.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String searchText = searchInput.getText();
-                searchExploits(searchText);
-            }
-        });
 
         mainPanel.add(viewPanel);
-        viewPanel.add(viewCVE);
-        viewPanel.add(viewPortlist);
-        viewPanel.add(viewExploits);
+        viewPanel.add(checkCVE);
+        viewPanel.add(checkPortlist);
+        viewPanel.add(checkExploits);
+        viewPanel.add(viewButton);
         mainPanel.add(centerPanel);
         centerPanel.add(topPanel, BorderLayout.NORTH);
         centerPanel.add(bottomPanel, BorderLayout.CENTER);
@@ -160,11 +145,6 @@ public class ViewCVE extends JPanel {
         }
     }
     
-    private void searchCVE(String searchText) {
-        searchColumn = "CVE Number";
-        searchDatabase(searchText, "CVE");
-    }
-    
     private void viewPortlistData() {
         try {
             Statement view = conn.createStatement();
@@ -196,11 +176,6 @@ public class ViewCVE extends JPanel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-    
-    private void searchPortlist(String searchText) {
-        searchColumn = "Port";
-        searchDatabase(searchText, "Portlist");
     }
     
     private void viewExploitsData() {
@@ -255,11 +230,6 @@ public class ViewCVE extends JPanel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-    
-    private void searchExploits(String searchText) {
-        searchColumn = "ID";
-        searchDatabase(searchText, "Exploits");
     }
     
     private void searchDatabase(String searchText, String tableName) {

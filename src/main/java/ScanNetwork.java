@@ -35,6 +35,7 @@ public class ScanNetwork extends JPanel {
         mainPanel.setLayout(new BorderLayout());
         add(mainPanel);
 
+
         JPanel topPanel = new JPanel();
         JPanel centerPanel = new JPanel();
         JPanel bottomPanel = new JPanel();
@@ -84,7 +85,7 @@ public class ScanNetwork extends JPanel {
         completionService = new ExecutorCompletionService<>(executor);
     }
 
-    public class ActionHandler implements ActionListener {
+    public class ActionHandler extends Component implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
         if (e.getSource() == scanButton) {
             try {
@@ -95,7 +96,7 @@ public class ScanNetwork extends JPanel {
             uniqueIPSet.removeAll(uniqueIPSet);
             ipTableModel.setRowCount(0);
             subnetCalc(stringToAddr(ipField.getText()), stringToAddr(ipSubnet.getText()));
-            scanIpRange(500);
+            scanIpRange(5000);
             } catch (Exception ex) {}
                 
         } else if (e.getSource() == stopButton) {
@@ -137,6 +138,10 @@ public class ScanNetwork extends JPanel {
             }
             shutdownScan();
             scanState(false);
+            if (uniqueIPSet.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No live hosts were found.", "Information", JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("No live hosts were found.");
+            }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

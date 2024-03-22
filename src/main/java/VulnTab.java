@@ -1,5 +1,6 @@
 import javax.jmdns.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,7 +9,9 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,23 +26,38 @@ public class VulnTab extends JPanel {
     private ExecutorService executor;
     private JButton stop;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private JLabel progressLabel;
 
     public VulnTab(ArrayList<String> c) {
-        currentIPs = c;
 
+        currentIPs = c;
+        tableModel = new DefaultTableModel(new Object[]{"IP Address", "Open Port"}, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane, BorderLayout.CENTER);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         add(mainPanel);
-        JPanel topPanel = new JPanel();
-        JLabel label = new JLabel("VulnTab");
-        topPanel.add(label);
-        scan = new JButton("Scan");
-        topPanel.add(scan);
-        mainPanel.add(topPanel, BorderLayout.NORTH);
 
+        JPanel buttonPanel = new JPanel(); // Panel for the buttons
+        JPanel labelPanel = new JPanel(); // Panel for the label
+
+        JLabel label = new JLabel("VulnTab");
+        buttonPanel.add(label);
+
+        scan = new JButton("Scan");
+        buttonPanel.add(scan);
 
         stop = new JButton("Stop");
-        topPanel.add(stop);
+        buttonPanel.add(stop);
+
+        progressLabel = new JLabel("Progress: 0/65536"); // Initialize the label
+        labelPanel.add(progressLabel); // Add the label to the label panel
+
+        mainPanel.add(buttonPanel, BorderLayout.NORTH); // Add the button panel to the main panel
+        mainPanel.add(labelPanel, BorderLayout.CENTER); // Add the label panel below the button panel
 
         ActionHandler ah = new ActionHandler();
         scan.addActionListener(ah);
@@ -80,47 +98,67 @@ public class VulnTab extends JPanel {
     }
 
     private class PortScannerTask implements Runnable {
+
         private String ipAddress;
+        private AtomicInteger portsScanned = new AtomicInteger(0);
+        private final ExecutorService executor;
         //private DefaultTableModel tableModel;
         //private int row;
 
         public PortScannerTask(String ipAddress) {
             this.ipAddress = ipAddress;
+            this.ipAddress = ipAddress;
+            this.executor = Executors.newFixedThreadPool(1000);
             //this.tableModel = tableModel;
             //this.row = row;
         }
 
         @Override
         public void run() {
-            //StringBuilder openPorts = new StringBuilder();
             System.out.println("STARTED port scanning for " + ipAddress);
             for (int port = 1; port <= 65536; port++) {
-                try {
-                    //determine if the thread should stop
-                    if (stopFlag.get()) {
+                if (stopFlag.get()) {
                     break;
                 }
-                if (scanPort(ipAddress, port, 500)) {
-                    System.out.println("PORT FOUND " + port + " FOR IP: " + ipAddress);
-                    openPorts.add(Integer.toString(port));
-                } else {
-                    System.out.println("PORT NOT FOUND " + port + " FOR IP: " + ipAddress);
-                }
-                } catch (Exception e) {
-                    System.out.println(e);
-                }
+                final int finalPort = port;
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (scanPort(ipAddress, finalPort, 2000)) {
+                            System.out.println("PORT FOUND " + finalPort + " FOR IP: " + ipAddress);
+                            openPorts.add(Integer.toString(finalPort));
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tableModel.addRow(new Object[]{ipAddress, finalPort});
+                                    int totalScanned = portsScanned.incrementAndGet(); // Increment the counter
+                                    double percentage = (double) totalScanned / 65536 * 100; // percentage of completion
+                                    progressLabel.setText("Progress: " + totalScanned + "/65536 (" + String.format("%.2f", percentage) + "%)"); // Update the label
+                                }
+                            });
+                        } else {
+                            System.out.println("PORT NOT FOUND " + finalPort + " FOR IP: " + ipAddress);
+                            int totalScanned = portsScanned.incrementAndGet(); // Increment the counter
+                            double percentage = (double) totalScanned / 65536 * 100; // percentage of completion
+                            progressLabel.setText("Progress: " + totalScanned + "/65536 (" + String.format("%.2f", percentage) + "%)"); // Update the label
+                        }
+                    }
+                });
             }
-            // Update table with open ports
-            //tableModel.setValueAt(ipAddress, row, 1);
-            //tableModel.setValueAt(openPorts.toString(), row, 2);
-            System.out.println("FINSHED port scanning for " + ipAddress + " with open ports: ");
-            for(int i = 0; i < openPorts.size(); i++) {
-                System.out.println(openPorts.get(i));
+            executor.shutdown();
+            try {
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
+            progressLabel.setText("Scanning Operating System");
+            System.out.println("FINISHED port scanning for " + ipAddress);
             System.out.println("Operating System Detected: " + new ScanOperatingSystem(ipAddress).getOperatingSystem());
+            progressLabel.setText("Scanning Service Versions");
             System.out.println("Service Versions: " + getServiceVersions(ipAddress, openPorts));
-    }
+            progressLabel.setText("Scan Completed");
 
+        }
 
 
 

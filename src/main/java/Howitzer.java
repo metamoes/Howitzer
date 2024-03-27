@@ -76,7 +76,7 @@ public class Howitzer extends JFrame {
             viewCVETab = new ViewCVE(conn);
             crossReferenceTab = new CrossReference();
             identifyVulnTab = new VulnTab(currentIPs);
-            penetrateTab = new Penetrate();
+            penetrateTab = new Penetrate(new ArrayList<>(), currentIPs);
             seeTrafficTab = new SeeTraffic();
             genReportTab = new Reporting(reports, selectedScopes);
 

@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.channels.SocketChannel;
+import java.net.InetSocketAddress;
 
 /*
  * 
@@ -85,7 +87,31 @@ public class VulnTab extends JPanel {
             executor.execute(new PortScannerTask(currentIPs.get(i)));
         }
     }
+    public boolean scanPortWithSyn(String ip, int port, int timeout) {
+        try {
+            InetSocketAddress address = new InetSocketAddress(ip, port);
+            SocketChannel channel = SocketChannel.open();
+            channel.configureBlocking(false);
+            channel.connect(address);
 
+            // Wait for the specified timeout
+            long start = System.currentTimeMillis();
+            while (!channel.finishConnect()) {
+                if (System.currentTimeMillis() - start > timeout) {
+                    // Timeout reached, close the channel and return false
+                    channel.close();
+                    return false;
+                }
+            }
+
+            // Connection established, close the channel and return true
+            channel.close();
+            return true;
+        } catch (Exception e) {
+            // An exception occurred, return false
+            return false;
+        }
+    }
     public boolean scanPort(String ip, int port, int timeout) {
         try {
             Socket s = new Socket();
@@ -108,7 +134,7 @@ public class VulnTab extends JPanel {
         public PortScannerTask(String ipAddress) {
             this.ipAddress = ipAddress;
             this.ipAddress = ipAddress;
-            this.executor = Executors.newFixedThreadPool(1000);
+            this.executor = Executors.newFixedThreadPool(66000);
             //this.tableModel = tableModel;
             //this.row = row;
         }
@@ -138,6 +164,24 @@ public class VulnTab extends JPanel {
                             });
                         } else {
                             System.out.println("PORT NOT FOUND " + finalPort + " FOR IP: " + ipAddress);
+                            int totalScanned = portsScanned.incrementAndGet(); // Increment the counter
+                            double percentage = (double) totalScanned / 65536 * 100; // percentage of completion
+                            progressLabel.setText("Progress: " + totalScanned + "/65536 (" + String.format("%.2f", percentage) + "%)"); // Update the label
+                        }
+                        if (scanPortWithSyn(ipAddress, finalPort, 2000)) {
+                            System.out.println("SYN PORT FOUND " + finalPort + " FOR IP: " + ipAddress);
+                            openPorts.add(Integer.toString(finalPort));
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tableModel.addRow(new Object[]{ipAddress, finalPort});
+                                    int totalScanned = portsScanned.incrementAndGet(); // Increment the counter
+                                    double percentage = (double) totalScanned / 65536 * 100; // percentage of completion
+                                    progressLabel.setText("Progress: " + totalScanned + "/65536 (" + String.format("%.2f", percentage) + "%)"); // Update the label
+                                }
+                            });
+                        } else {
+                            System.out.println("SYN PORT NOT FOUND " + finalPort + " FOR IP: " + ipAddress);
                             int totalScanned = portsScanned.incrementAndGet(); // Increment the counter
                             double percentage = (double) totalScanned / 65536 * 100; // percentage of completion
                             progressLabel.setText("Progress: " + totalScanned + "/65536 (" + String.format("%.2f", percentage) + "%)"); // Update the label
